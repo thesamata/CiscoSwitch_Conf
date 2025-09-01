@@ -37,7 +37,6 @@ ip default-gateway {ip_address.rsplit('.',1)[0]}.1
 !
 line vty 0 4
  login local
- access-class 23 in
  transport input ssh
  logging synchronous
 exit
