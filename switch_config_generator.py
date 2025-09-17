@@ -1,98 +1,121 @@
-import tkinter as tk
-from tkinter import messagebox, scrolledtext
+import customtkinter as ctk
+from tkinter import messagebox
+import re
 
-def generate_config():
-    switch_name = entry_name.get()
-    ip_address = entry_ip.get()
-    password = entry_pass.get()
-    domain_name = entry_domain.get()
-    vlan_id = entry_vlan.get()
+# ---------------- Tema Ayarları ----------------
+ctk.set_appearance_mode("Dark")  # Başlangıç teması
+ctk.set_default_color_theme("blue")
+
+def degistir_tema():
+    # Dark ↔ Light geçişi
+    if ctk.get_appearance_mode() == "Dark":
+        ctk.set_appearance_mode("Light")
+    else:
+        ctk.set_appearance_mode("Dark")
+
+# ---------------- Config Oluşturma ----------------
+def olustur_config():
+    # Kullanıcı girişleri
+    isim = entry_name.get()
+    ip = entry_ip.get()
+    mask = entry_mask.get()
+    gw = entry_gw.get()
+    sifre = entry_pass.get()
+    domain = entry_domain.get()
+    vlan = entry_vlan.get()
     banner = entry_banner.get()
+    timeout = entry_timeout.get()
+    ntp = entry_ntp.get()
 
-    if not switch_name or not ip_address or not password or not domain_name or not vlan_id:
-        messagebox.showerror("Hata", "Lütfen tüm alanları doldurun!")
+    # Şifre kontrolü
+    if len(sifre) < 8 or not re.search(r"[A-Z]", sifre) or not re.search(r"[a-z]", sifre) or not re.search(r"[0-9]", sifre):
+        messagebox.showerror("Hata", "Şifre en az 8 karakter, 1 büyük, 1 küçük ve 1 rakam içermeli!")
         return
 
-    config = f"""
-!
-hostname {switch_name}
+    if not timeout:
+        timeout = "10"
+
+    # Config oluşturma
+    conf = f"""hostname {isim}
 !
 banner motd #{banner}#
-!
-enable secret {password}
+enable secret {sifre}
 service password-encryption
 no ip domain-lookup
-!
-ip domain-name {domain_name}
+ip domain-name {domain}
 crypto key generate rsa modulus 1024
 ip ssh version 2
-!
-username admin privilege 15 secret {password}
-!
-interface vlan {vlan_id}
- ip address {ip_address} 255.255.255.0
+username admin privilege 15 secret {sifre}
+
+interface vlan {vlan}
+ ip address {ip} {mask}
  no shutdown
-!
-ip default-gateway {ip_address.rsplit('.',1)[0]}.1
-!
+
+ip default-gateway {gw}
+"""
+
+    if ntp:
+        conf += f"ntp server {ntp}\n"
+
+    conf += f"""
 line vty 0 4
+ exec-timeout {timeout} 0
  login local
- access-class 23 in
  transport input ssh
  logging synchronous
-exit
-!
+
 line con 0
+ exec-timeout {timeout} 0
  login local
  logging synchronous
-exit
-!
-conf t
-vlan {vlan_id}
+
+vlan {vlan}
  no shutdown
-exit
-!
 end
 write memory
 """
 
-    txt_output.delete(1.0, tk.END)
-    txt_output.insert(tk.END, config)
+    txt_output.delete("1.0", "end")
+    txt_output.insert("1.0", conf)
 
+# ---------------- Panoya Kopyalama ----------------
+def kopyala():
+    window.clipboard_clear()
+    window.clipboard_append(txt_output.get("1.0", "end"))
+    messagebox.showinfo("Başarılı", "Config panoya kopyalandı!")
 
-# ---- ARAYUZ KISMI ----
-root = tk.Tk()
-root.title("Cisco Switch Config Generator")
-root.geometry("700x600")
+# ---------------- Arayüz ----------------
+window = ctk.CTk()
+window.title("Cisco Switch Config Generator")
+window.geometry("700x750")
 
-tk.Label(root, text="Switch Name:").pack()
-entry_name = tk.Entry(root, width=50)
-entry_name.pack()
+# Tema değiştir butonu
+ctk.CTkButton(window, text="Dark / Light Theme", command=degistir_tema).pack(pady=10)
 
-tk.Label(root, text="IP Address (ör: 10.100.101.63):").pack()
-entry_ip = tk.Entry(root, width=50)
-entry_ip.pack()
+frame = ctk.CTkFrame(window)
+frame.pack(padx=20, pady=20, fill="both", expand=True)
 
-tk.Label(root, text="Enable Secret Password:").pack()
-entry_pass = tk.Entry(root, width=50, show="*")
-entry_pass.pack()
+# Giriş alanları
+entry_name = ctk.CTkEntry(frame, placeholder_text="Switch Name")
+entry_ip = ctk.CTkEntry(frame, placeholder_text="IP Address")
+entry_mask = ctk.CTkEntry(frame, placeholder_text="Subnet Mask")
+entry_gw = ctk.CTkEntry(frame, placeholder_text="Default Gateway")
+entry_pass = ctk.CTkEntry(frame, placeholder_text="Enable Secret Password", show="*")
+entry_domain = ctk.CTkEntry(frame, placeholder_text="Domain Name")
+entry_vlan = ctk.CTkEntry(frame, placeholder_text="Management VLAN ID")
+entry_banner = ctk.CTkEntry(frame, placeholder_text="Banner MOTD")
+entry_timeout = ctk.CTkEntry(frame, placeholder_text="Exec Timeout (minutes)")
+entry_ntp = ctk.CTkEntry(frame, placeholder_text="NTP Server (optional)")
 
-tk.Label(root, text="IP Domain-Name:").pack()
-entry_domain = tk.Entry(root, width=50)
-entry_domain.pack()
+for e in [entry_name, entry_ip, entry_mask, entry_gw, entry_pass, entry_domain, entry_vlan, entry_banner, entry_timeout, entry_ntp]:
+    e.pack(pady=5, padx=10, fill="x")
 
-tk.Label(root, text="Management VLAN ID:").pack()
-entry_vlan = tk.Entry(root, width=50)
-entry_vlan.pack()
+# Butonlar
+ctk.CTkButton(frame, text="Generate Config", command=olustur_config).pack(pady=10)
+ctk.CTkButton(frame, text="Copy to Clipboard", command=kopyala).pack(pady=5)
 
-tk.Label(root, text="Banner MOTD:").pack()
-entry_banner = tk.Entry(root, width=50)
-entry_banner.pack()
+# Config gösterim alanı
+txt_output = ctk.CTkTextbox(frame, width=650, height=250)
+txt_output.pack(pady=10)
 
-btn_generate = tk.Button(root, text="Generate Config", command=generate_config)
-btn_generate.pack(pady=10)
-
-txt_output = scrolledtext.ScrolledText(root, width=80, height=20)
-txt_output.pack()
-
-root.mainloop()
+window.mainloop()
