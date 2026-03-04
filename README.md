@@ -25,8 +25,8 @@ Form üzerinden hostname, IP, VLAN ID, domain-name, banner MOTD ve enable secret
 1. Python 3.8+ yüklü olmalı
 2. Gerekli kütüphaneleri yükleyin:
    pip install -r requirements.txt
-3. main.py dosyasını çalıştırın:
-   python main.py
+3. switch_config_generator.py dosyasını çalıştırın:
+   python switch_config_generator.py
 
 🖥️ Kullanım:
 1. Form alanlarını doldurun (Hostname, IP, VLAN, vs.)
