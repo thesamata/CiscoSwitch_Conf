@@ -1,36 +1,51 @@
-# Cisco Switch Config Generator 🛠️
+# Cisco Switch Config Generator 🚀
 
-Bu proje, Python GUI (CustomTkinter) kullanarak Cisco switch’ler için otomatik konfigürasyon dosyası üreten bir uygulamadır. 
-Form üzerinden hostname, IP, VLAN ID, domain-name, banner MOTD ve enable secret şifresini girerek hızlıca config oluşturabilirsiniz.
+Modern, akıllı ve profesyonel bir Cisco Switch yapılandırma hazırlama aracı. Bu uygulama, ağ yöneticilerinin günlük rutinlerini hızlandırmak ve yapılandırma hatalarını minimize etmek için tasarlanmıştır.
 
-✨ Özellikler:
-- Hostname ayarlama
-- Banner MOTD ekleme
-- Enable secret şifre oluşturma ve şifre karmaşıklığı kontrolü
-- Service password-encryption
-- IP domain-name ayarı
-- SSH yapılandırması (RSA key + SSH version 2)
-- Kullanıcı hesabı (admin privilege 15)
-- VLAN numarasını değiştirebilme
-- Interface VLAN konfigürasyonu
-- Default gateway ayarı
-- Line VTY 0-4 (SSH) ve Line Console ayarları
-- Exec-timeout ayarı
-- NTP server ekleyebilme (opsiyonel)
-- Config’i panoya kopyalama
-- Dark / Light tema desteği
-- write memory komutu ile kaydetme
+## 📸 Uygulama Ekran Görüntüleri
 
-🚀 Kurulum:
-1. Python 3.8+ yüklü olmalı
-2. Gerekli kütüphaneleri yükleyin:
-   pip install -r requirements.txt
-3. switch_config_generator.py dosyasını çalıştırın:
-   python switch_config_generator.py
+### 1. Temel Ayarlar (Genel Yapılandırma)
+Uygulamanın ana ekranı üzerinden hostname, IP, şifre ve yönetimsel ayarları kolayca yapabilirsiniz. Akıllı şifre üretici ile saniyeler içinde güçlü şifreler oluşturabilirsiniz.
 
-🖥️ Kullanım:
-1. Form alanlarını doldurun (Hostname, IP, VLAN, vs.)
-2. "Generate Config" butonuna basın
-3. Oluşturulan konfigürasyon altta görünecek
-4. "Copy to Clipboard" ile config’i panoya kopyalayabilirsiniz
-5. Dark / Light tema butonu ile arayüz görünümünü değiştirebilirsiniz
+![Temel Ayarlar](image1.png)
+
+### 2. Güvenlik ve Arayüz Ayarları
+Port Security, SSH ACL ve STP korumalarını sekmeler üzerinden dinamik olarak yapılandırabilirsiniz. Girdiğiniz veriler otomatik olarak Cisco sentaksına normalize edilir.
+
+![Güvenlik Ayarları](image2.png)
+
+## ✨ Öne Çıkan Özellikler
+
+*   **Akıllı Giriş Doğrulama (Smart Validation):**
+    *   **CIDR Desteği:** `/24` gibi girişleri otomatik olarak Cisco Wildcard maskesine çevirir.
+    *   **Arayüz Normalizasyonu:** `fa01-24` gibi hatalı yazımları `fastethernet0/1 - 24` formatına düzeltir.
+*   **Gelişmiş Güvenlik Katmanı:**
+    *   **SSH Güvenliği:** 2048-bit RSA anahtarları ve otomatik ACL kısıtlaması.
+    *   **Katman 2 Koruması:** DHCP Snooping, Dynamic ARP Inspection (DAI) ve IP Source Guard.
+    *   **Port Güvenliği:** Sticky MAC ve violation kısıtlamaları.
+*   **Modern Kullanıcı Deneyimi:**
+    *   Modüler Tab (Sekme) yapısı.
+    *   Dark / Light tema desteği.
+    *   Güçlü şifre üretici (12 karakter, özel sembollü).
+    *   Anlık durum çubuğu ve hata denetimi.
+
+## 🚀 Kurulum
+
+1.  Bilgisayarınızda Python 3.8+ yüklü olduğundan emin olun.
+2.  Gerekli kütüphaneleri yükleyin:
+    ```bash
+    pip install -r requirements.txt
+    ```
+3.  Uygulamayı çalıştırın:
+    ```bash
+    python switch_config_generator.py
+    ```
+
+## 🛠️ Teknik Detaylar
+
+*   **Dil:** Python
+*   **Arayüz:** CustomTkinter (Modern UI)
+*   **Kütüphaneler:** `ipaddress`, `re`, `secrets`, `customtkinter`
+
+---
+*Bu proje ağ mühendisliği süreçlerini otomatize etmek ve standartlaştırmak için geliştirilmiştir.*
